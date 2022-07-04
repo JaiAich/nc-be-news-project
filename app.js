@@ -1,10 +1,8 @@
 const express = require("express");
 
-const {
-  getTopics,
-  getHealth,
-  getArticles,
-} = require("./controllers/topics.js");
+const { getTopics, getHealth } = require("./controllers/topics.js");
+
+const { getArticles } = require("./controllers/articles.js");
 
 const {
   handlePSQLErrors,
