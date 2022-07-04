@@ -24,20 +24,12 @@ describe("1. GET /api/health", () => {
 });
 
 describe("2. GET /api/topics", () => {
-  test("status: 200, responds with an array of topics of correct length", () => {
+  test("status: 200, responds with an array of topics of correct length & format", () => {
     return request(app)
       .get("/api/topics")
       .expect(200)
       .then(({ body }) => {
         expect(body.topics).toHaveLength(3);
-      });
-  });
-
-  test("status: 200, responds with an array of objects formatted correctly", () => {
-    return request(app)
-      .get("/api/topics")
-      .expect(200)
-      .then(({ body }) => {
         body.topics.forEach((topic) => {
           expect(topic).toEqual(
             expect.objectContaining({
