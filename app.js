@@ -4,6 +4,8 @@ const { getTopics, getHealth } = require("./controllers/topics.js");
 
 const { getArticles, patchArticles } = require("./controllers/articles.js");
 
+const { getUsers } = require("./controllers/users.js");
+
 const {
   handlePSQLErrors,
   unhandledErrors,
@@ -21,6 +23,8 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticles);
 
 app.patch("/api/articles/:article_id", patchArticles);
+
+app.get("/api/users", getUsers);
 
 app.use("*", (req, res) => {
   res.status(404).send({ message: "Path not found!" });

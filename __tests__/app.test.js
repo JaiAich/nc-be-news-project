@@ -154,6 +154,27 @@ describe("4. PATCH /api/articles/:article_id", () => {
   });
 });
 
+// < -------------------------- GET api users -------------------------->
+describe("5. GET /api/users", () => {
+  test("status: 200, responds with an array of users of correct length & format", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users).toHaveLength(4);
+        body.users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              avatar_url: expect.any(String),
+              name: expect.any(String),
+              username: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+});
+
 // < -------------------------- GET invalid path -------------------------->
 describe("Misc error handling tests", () => {
   test("status: 404, responds with path not found for invalid path", () => {
