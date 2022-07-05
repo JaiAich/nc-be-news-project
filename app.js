@@ -2,7 +2,7 @@ const express = require("express");
 
 const { getTopics, getHealth } = require("./controllers/topics.js");
 
-const { getArticles } = require("./controllers/articles.js");
+const { getArticles, patchArticles } = require("./controllers/articles.js");
 
 const {
   handlePSQLErrors,
@@ -19,6 +19,8 @@ app.get("/api/health", getHealth);
 app.get("/api/topics", getTopics);
 
 app.get("/api/articles/:article_id", getArticles);
+
+app.patch("/api/articles/:article_id", patchArticles);
 
 app.use("*", (req, res) => {
   res.status(404).send({ message: "Path not found!" });
