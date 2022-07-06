@@ -12,7 +12,7 @@ afterAll(() => {
   if (connection.end) connection.end();
 });
 
-// < -------------------------- GET api health -------------------------->
+// < -------------------------- GET /api/health -------------------------->
 describe("1. GET /api/health", () => {
   test("status: 200, responds with server up and running message", () => {
     return request(app)
@@ -24,7 +24,7 @@ describe("1. GET /api/health", () => {
   });
 });
 
-// < -------------------------- GET api topics -------------------------->
+// < -------------------------- GET /api/topics -------------------------->
 describe("2. GET /api/topics", () => {
   test("status: 200, responds with an array of topics of correct length & format", () => {
     return request(app)
@@ -44,7 +44,7 @@ describe("2. GET /api/topics", () => {
   });
 });
 
-// < -------------------------- GET api articles -------------------------->
+// < -------------------------- GET /api/articles -------------------------->
 describe("3. GET /api/articles", () => {
   test("status: 200, responds with an array of articles of correct length & format", () => {
     return request(app)
@@ -84,7 +84,7 @@ describe("3. GET /api/articles", () => {
   });
 });
 
-// < -------------------------- GET api articles article_id -------------------------->
+// < -------------------------- GET /api/articles/:article_id -------------------------->
 describe("4. GET /api/articles/:article_id", () => {
   test("status: 200, responds with the correct article matching the id parameter including a comment count", () => {
     return request(app)
@@ -141,8 +141,62 @@ describe("4. GET /api/articles/:article_id", () => {
   });
 });
 
-// < -------------------------- PATCH api articles -------------------------->
-describe("5. PATCH /api/articles/:article_id", () => {
+// < ------------------------ GET /api/articles/:article_id/comments ------------------------>
+
+describe("5. GET /api/articles/:article_id/comments", () => {
+  test("status: 200, responds with the an array of comments for the matching article_id", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(2);
+        body.comments.forEach((comment) => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              article_id: 3,
+              comment_id: expect.any(Number),
+              author: expect.any(String),
+              body: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+
+  test("status: 200, responds with an empty array for articles with zero comments", () => {
+    return request(app)
+      .get("/api/articles/4/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toEqual([]);
+      });
+  });
+
+  describe("Error handling tests", () => {
+    test("status: 400, responds with bad request message to invalid article ids", () => {
+      return request(app)
+        .get("/api/articles/invalid_id/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad Request");
+        });
+    });
+
+    test("status: 404, responds with index out of range error message for incorrect article id numbers", () => {
+      return request(app)
+        .get("/api/articles/999/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Article ID index out of range");
+        });
+    });
+  });
+});
+
+// < -------------------------- PATCH /api/articles/:article_id -------------------------->
+describe("6. PATCH /api/articles/:article_id", () => {
   test("status: 200, responds with the updated article object", () => {
     const newInfo = { inc_votes: 5 };
     return request(app)
@@ -209,8 +263,8 @@ describe("5. PATCH /api/articles/:article_id", () => {
   });
 });
 
-// < -------------------------- GET api users -------------------------->
-describe("6. GET /api/users", () => {
+// < -------------------------- GET /api/users -------------------------->
+describe("7. GET /api/users", () => {
   test("status: 200, responds with an array of users of correct length & format", () => {
     return request(app)
       .get("/api/users")
