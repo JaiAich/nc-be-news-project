@@ -1,6 +1,6 @@
 const connection = require("../db/connection.js");
 
-exports.fetchArticles = (articleId) => {
+exports.fetchArticle = (articleId) => {
   return connection
     .query(
       `SELECT articles.*, CAST(COUNT(comments.comment_id) AS int) AS comment_count 
@@ -20,7 +20,7 @@ exports.fetchArticles = (articleId) => {
     });
 };
 
-exports.updateArticles = (articleId, incVotes) => {
+exports.updateArticle = (articleId, incVotes) => {
   if (!incVotes)
     return Promise.reject({
       status: 400,
@@ -39,5 +39,17 @@ exports.updateArticles = (articleId, incVotes) => {
         });
       }
       return rows[0];
+    });
+};
+
+exports.fetchAllArticles = () => {
+  return connection
+    .query(
+      `SELECT articles.*, CAST(COUNT(comments.comment_id) AS int) AS comment_count 
+      FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id 
+      GROUP BY articles.article_id ORDER BY articles.created_at DESC;`
+    )
+    .then(({ rows }) => {
+      return rows;
     });
 };

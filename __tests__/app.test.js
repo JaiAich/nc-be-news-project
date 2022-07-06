@@ -45,7 +45,47 @@ describe("2. GET /api/topics", () => {
 });
 
 // < -------------------------- GET api articles -------------------------->
-describe("3. GET /api/articles/:article_id", () => {
+describe("3. GET /api/articles", () => {
+  test("status: 200, responds with an array of articles of correct length & format", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(12);
+        body.articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+
+  test("status: 200, responds with articles array ordered by date in descending order", () => {
+    const sortingFunc = (a, b) => {
+      if (a.created_at > b.created_at) return -1;
+      return 1;
+    };
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const articlesCopy = [...body.articles];
+        expect(articlesCopy).toEqual(body.articles.sort(sortingFunc));
+      });
+  });
+});
+
+// < -------------------------- GET api articles article_id -------------------------->
+describe("4. GET /api/articles/:article_id", () => {
   test("status: 200, responds with the correct article matching the id parameter including a comment count", () => {
     return request(app)
       .get("/api/articles/1")
@@ -102,7 +142,7 @@ describe("3. GET /api/articles/:article_id", () => {
 });
 
 // < -------------------------- PATCH api articles -------------------------->
-describe("4. PATCH /api/articles/:article_id", () => {
+describe("5. PATCH /api/articles/:article_id", () => {
   test("status: 200, responds with the updated article object", () => {
     const newInfo = { inc_votes: 5 };
     return request(app)
@@ -170,7 +210,7 @@ describe("4. PATCH /api/articles/:article_id", () => {
 });
 
 // < -------------------------- GET api users -------------------------->
-describe("5. GET /api/users", () => {
+describe("6. GET /api/users", () => {
   test("status: 200, responds with an array of users of correct length & format", () => {
     return request(app)
       .get("/api/users")

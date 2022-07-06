@@ -2,7 +2,7 @@ const express = require("express");
 
 const { getTopics, getHealth } = require("./controllers/topics.js");
 
-const { getArticles, patchArticles } = require("./controllers/articles.js");
+const { getArticle, getAllArticles, patchArticle } = require("./controllers/articles.js");
 
 const { getUsers } = require("./controllers/users.js");
 
@@ -20,11 +20,13 @@ app.get("/api/health", getHealth);
 
 app.get("/api/topics", getTopics);
 
-app.get("/api/articles/:article_id", getArticles);
+app.get("/api/articles/:article_id", getArticle);
 
-app.patch("/api/articles/:article_id", patchArticles);
+app.patch("/api/articles/:article_id", patchArticle);
 
 app.get("/api/users", getUsers);
+
+app.get("/api/articles", getAllArticles);
 
 app.use("*", (req, res) => {
   res.status(404).send({ message: "Path not found!" });
