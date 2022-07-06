@@ -2,9 +2,15 @@ const express = require("express");
 
 const { getTopics, getHealth } = require("./controllers/topics.js");
 
-const { getArticle, getAllArticles, patchArticle } = require("./controllers/articles.js");
+const {
+  getArticle,
+  getAllArticles,
+  patchArticle,
+} = require("./controllers/articles.js");
 
 const { getUsers } = require("./controllers/users.js");
+
+const { getCommentsByArticleId } = require("./controllers/comments.js");
 
 const {
   handlePSQLErrors,
@@ -27,6 +33,8 @@ app.patch("/api/articles/:article_id", patchArticle);
 app.get("/api/users", getUsers);
 
 app.get("/api/articles", getAllArticles);
+
+app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.use("*", (req, res) => {
   res.status(404).send({ message: "Path not found!" });
