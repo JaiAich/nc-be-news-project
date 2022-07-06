@@ -1,21 +1,8 @@
 const connection = require("../db/connection.js");
-
-const checkArticleExists = (articleId) => {
-  return connection
-    .query(`SELECT * FROM articles WHERE article_id = $1;`, [articleId])
-    .then(({ rows }) => {
-      if (rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          message: "Article ID index out of range",
-        });
-      }
-      return rows[0];
-    });
-};
+const { checkExists } = require("../utils/index.js");
 
 exports.fetchCommentsByArticleId = (articleId) => {
-  return checkArticleExists(articleId)
+  return checkExists("articles", "article_id", articleId)
     .then(() => {
       return connection.query(`SELECT * FROM comments WHERE article_id = $1;`, [
         articleId,
@@ -25,4 +12,28 @@ exports.fetchCommentsByArticleId = (articleId) => {
       if (!rows) return [];
       return rows;
     });
+};
+
+exports.addComment = (articleId, comment) => {
+  const { username, body } = comment;
+
+  if (typeof username !== "string" || typeof body !== "string") {
+    return Promise.reject({
+      status: 400,
+      message: "Invalid request body",
+    });
+  }
+
+  return checkExists("articles", "article_id", articleId)
+    .then(() => {
+      return checkExists("users", "username", username);
+    })
+    .then(() => {
+      return connection.query(
+        `INSERT INTO comments (body, article_id, author, created_at, votes)
+      VALUES ($3, $1, $2, NOW(), 0) RETURNING *;`,
+        [articleId, username, body]
+      );
+    })
+    .then(({ rows }) => rows[0]);
 };
