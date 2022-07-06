@@ -13,3 +13,27 @@ exports.fetchCommentsByArticleId = (articleId) => {
       return rows;
     });
 };
+
+exports.addComment = (articleId, comment) => {
+  const { username, body } = comment;
+
+  if (typeof username !== "string" || typeof body !== "string") {
+    return Promise.reject({
+      status: 400,
+      message: "Invalid request body",
+    });
+  }
+
+  return checkExists("articles", "article_id", articleId)
+    .then(() => {
+      return checkExists("users", "username", username);
+    })
+    .then(() => {
+      return connection.query(
+        `INSERT INTO comments (body, article_id, author, created_at, votes)
+      VALUES ($3, $1, $2, NOW(), 0) RETURNING *;`,
+        [articleId, username, body]
+      );
+    })
+    .then(({ rows }) => rows[0]);
+};

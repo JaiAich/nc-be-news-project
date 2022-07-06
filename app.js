@@ -10,7 +10,10 @@ const {
 
 const { getUsers } = require("./controllers/users.js");
 
-const { getCommentsByArticleId } = require("./controllers/comments.js");
+const {
+  getCommentsByArticleId,
+  postComment,
+} = require("./controllers/comments.js");
 
 const {
   handlePSQLErrors,
@@ -35,6 +38,8 @@ app.get("/api/users", getUsers);
 app.get("/api/articles", getAllArticles);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+
+app.post("/api/articles/:article_id/comments", postComment);
 
 app.use("*", (req, res) => {
   res.status(404).send({ message: "Path not found!" });

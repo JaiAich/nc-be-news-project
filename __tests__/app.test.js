@@ -130,7 +130,7 @@ describe("4. GET /api/articles/:article_id", () => {
         });
     });
 
-    test("status: 404, responds with index out of range error message for incorrect article id numbers", () => {
+    test("status: 404, responds with resource not found error message for incorrect article id numbers", () => {
       return request(app)
         .get("/api/articles/999")
         .expect(404)
@@ -227,7 +227,7 @@ describe("6. PATCH /api/articles/:article_id", () => {
         });
     });
 
-    test("status: 404, responds with index out of range error message for incorrect article id numbers", () => {
+    test("status: 404, responds with resource not found error message for incorrect article id numbers", () => {
       const newInfo = { inc_votes: 5 };
       return request(app)
         .patch("/api/articles/999")
@@ -280,6 +280,102 @@ describe("7. GET /api/users", () => {
           );
         });
       });
+  });
+});
+
+// < ----------------------- POST /api/articles/:article_id/comments ----------------------->
+describe("8. POST /api/articles/:article_id/comments", () => {
+  test("status: 201, adds comment to correct db if user exists & responds with the added comment", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "Test comment",
+    };
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body).toEqual({
+          article_id: 3,
+          author: "butter_bridge",
+          body: "Test comment",
+          comment_id: 19,
+          created_at: expect.any(String),
+          votes: 0,
+        });
+      });
+  });
+
+  describe("Error handling tests", () => {
+    test("status: 400, responds with bad request message to invalid article ids", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "Test comment",
+      };
+      return request(app)
+        .post("/api/articles/invalid_id/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad Request");
+        });
+    });
+
+    test("status: 404, responds with resource not found error message for incorrect article id numbers", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "Test comment",
+      };
+      return request(app)
+        .post("/api/articles/999/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Resource not found");
+        });
+    });
+
+    test("status: 404, responds with resource not found error message for unregistered users", () => {
+      const newComment = {
+        username: "invalid user",
+        body: "Valid body",
+      };
+      return request(app)
+        .post("/api/articles/3/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Resource not found");
+        });
+    });
+
+    test("status: 400, invalid request body message for invalid body keys", () => {
+      const newComment = {
+        username: "butter_bridge",
+        text: "Invalid body key",
+      };
+      return request(app)
+        .post("/api/articles/3/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid request body");
+        });
+    });
+
+    test("status: 400, invalid request body message for non-string request body values", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: 12,
+      };
+      return request(app)
+        .post("/api/articles/3/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid request body");
+        });
+    });
   });
 });
 
