@@ -135,14 +135,13 @@ describe("4. GET /api/articles/:article_id", () => {
         .get("/api/articles/999")
         .expect(404)
         .then(({ body }) => {
-          expect(body.message).toBe("Article ID index out of range");
+          expect(body.message).toBe("Resource not found");
         });
     });
   });
 });
 
 // < ------------------------ GET /api/articles/:article_id/comments ------------------------>
-
 describe("5. GET /api/articles/:article_id/comments", () => {
   test("status: 200, responds with the an array of comments for the matching article_id", () => {
     return request(app)
@@ -184,12 +183,12 @@ describe("5. GET /api/articles/:article_id/comments", () => {
         });
     });
 
-    test("status: 404, responds with index out of range error message for incorrect article id numbers", () => {
+    test("status: 404, responds with resource not found error message for incorrect article id numbers", () => {
       return request(app)
         .get("/api/articles/999/comments")
         .expect(404)
         .then(({ body }) => {
-          expect(body.message).toBe("Article ID index out of range");
+          expect(body.message).toBe("Resource not found");
         });
     });
   });
@@ -235,7 +234,7 @@ describe("6. PATCH /api/articles/:article_id", () => {
         .send(newInfo)
         .expect(404)
         .then(({ body }) => {
-          expect(body.message).toBe("Article ID index out of range");
+          expect(body.message).toBe("Resource not found");
         });
     });
 
