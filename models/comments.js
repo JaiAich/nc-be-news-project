@@ -37,3 +37,15 @@ exports.addComment = (articleId, comment) => {
     })
     .then(({ rows }) => rows[0]);
 };
+
+exports.removeComment = (commentId) => {
+  return checkExists("comments", "comment_id", commentId)
+    .then(() => {
+      return connection.query(`DELETE FROM comments WHERE comment_id = $1;`, [
+        commentId,
+      ]);
+    })
+    .then(() => {
+      return;
+    });
+};
