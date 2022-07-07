@@ -1,8 +1,8 @@
 const express = require("express");
 
-const { getEndpoints } = require("./controllers/info.js");
+const { getEndpoints, getHealth } = require("./controllers/info.js");
 
-const { getTopics, getHealth } = require("./controllers/topics.js");
+const { getTopics } = require("./controllers/topics.js");
 
 const {
   getArticle,
