@@ -27,8 +27,13 @@ exports.patchArticle = (req, res, next) => {
     });
 };
 
-exports.getAllArticles = (req, res) => {
-  fetchAllArticles().then((articles) => {
-    res.status(200).send({ articles });
-  });
+exports.getAllArticles = (req, res, next) => {
+  const queryParams = req.query;
+  fetchAllArticles(queryParams)
+    .then((articles) => {
+      res.status(200).send({ articles });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };

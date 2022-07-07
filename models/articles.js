@@ -31,12 +31,44 @@ exports.updateArticle = (articleId, incVotes) => {
     .then(({ rows }) => rows[0]);
 };
 
-exports.fetchAllArticles = () => {
-  return connection
-    .query(
-      `SELECT articles.*, CAST(COUNT(comments.comment_id) AS int) AS comment_count 
-      FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id 
-      GROUP BY articles.article_id ORDER BY articles.created_at DESC;`
-    )
-    .then(({ rows }) => rows);
+exports.fetchAllArticles = (queryParams) => {
+  let { sort_by, order, topic } = queryParams;
+  if (!sort_by) sort_by = "created_at";
+  if (!order) order = "desc";
+
+  const allowedSortQueries = [
+    "article_id",
+    "title",
+    "topic",
+    "author",
+    "body",
+    "created_at",
+    "votes",
+  ];
+
+  const allowedOrderQueries = ["asc", "desc"];
+
+  if (!allowedSortQueries.includes(sort_by.toLowerCase())) {
+    return Promise.reject({ status: 400, message: "Invalid sort query" });
+  }
+
+  if (!allowedOrderQueries.includes(order.toLowerCase())) {
+    return Promise.reject({ status: 400, message: "Invalid order query" });
+  }
+  const queryValues = [];
+  let queryStr = `SELECT articles.*, CAST(COUNT(comments.comment_id) AS int) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id `;
+
+  if (topic) {
+    return checkExists("topics", "slug", topic)
+      .then(() => {
+        queryStr += `WHERE topic = $1 GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;
+        queryValues.push(topic);
+      })
+      .then(() => {
+        return connection.query(queryStr, queryValues).then(({ rows }) => rows);
+      });
+  } else {
+    queryStr += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;
+    return connection.query(queryStr, queryValues).then(({ rows }) => rows);
+  }
 };

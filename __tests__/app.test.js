@@ -69,7 +69,7 @@ describe("3. GET /api/articles", () => {
       });
   });
 
-  test("status: 200, responds with articles array ordered by date in descending order", () => {
+  test("status: 200, responds with articles array ordered by date in descending order by default", () => {
     const sortingFunc = (a, b) => {
       if (a.created_at > b.created_at) return -1;
       return 1;
@@ -81,6 +81,117 @@ describe("3. GET /api/articles", () => {
         const articlesCopy = [...body.articles];
         expect(articlesCopy).toEqual(body.articles.sort(sortingFunc));
       });
+  });
+
+  describe("Queries testing", () => {
+    test("status: 200, responds with articles array ordered by sort_by query with default desc order", () => {
+      const sortingFunc = (a, b) => {
+        if (a.votes > b.votes) return -1;
+        return 1;
+      };
+      return request(app)
+        .get("/api/articles?sort_by=votes&order=desc")
+        .expect(200)
+        .then(({ body }) => {
+          const articlesCopy = [...body.articles];
+          expect(articlesCopy).toEqual(body.articles.sort(sortingFunc));
+        });
+    });
+
+    test("status: 200, responds with articles array ordered by inputted sort_by & order queries", () => {
+      const sortingFunc = (a, b) => {
+        if (a.title < b.title) return -1;
+        return 1;
+      };
+      return request(app)
+        .get("/api/articles?sort_by=title&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          const articlesCopy = [...body.articles];
+          expect(articlesCopy).toEqual(body.articles.sort(sortingFunc));
+        });
+    });
+
+    test("status: 200, responds with articles array filtered by topic query", () => {
+      return request(app)
+        .get("/api/articles?topic=cats")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toEqual([
+            {
+              article_id: 5,
+              title: "UNCOVERED: catspiracy to bring down democracy",
+              topic: "cats",
+              author: "rogersop",
+              body: "Bastet walks amongst us, and the cats are taking arms!",
+              created_at: expect.any(String),
+              votes: 0,
+              comment_count: 2,
+            },
+          ]);
+        });
+    });
+
+    test("status: 200, responds with articles array filtered by topic query and sorted by inputted queries", () => {
+      const sortingFunc = (a, b) => {
+        if (a.author < b.author) return -1;
+        return 1;
+      };
+      return request(app)
+        .get("/api/articles?topic=mitch&order=asc&sort_by=author")
+        .expect(200)
+        .then(({ body }) => {
+          const articlesCopy = [...body.articles];
+          expect(articlesCopy).toEqual(body.articles.sort(sortingFunc)); // <-- test sort_by & order
+
+          expect(body.articles).toHaveLength(11); // <-- test filter
+          body.articles.forEach((article) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                topic: "mitch",
+              })
+            );
+          });
+        });
+    });
+  });
+
+  test("status: 200, responds with an empty array for valid topics with zero articles", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toEqual([]);
+      });
+  });
+
+  describe("Error handling tests", () => {
+    test("status: 400, responds with invalid sort query message to invalid sort_by values", () => {
+      return request(app)
+        .get("/api/articles?sort_by=pizza")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid sort query");
+        });
+    });
+
+    test("status: 400, responds with invalid order query message to invalid order values", () => {
+      return request(app)
+        .get("/api/articles?order=invalid_order")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid order query");
+        });
+    });
+
+    test("status: 404, responds with resource not found message to topic values which do not exist", () => {
+      return request(app)
+        .get("/api/articles?topic=pizza")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Resource not found");
+        });
+    });
   });
 });
 
