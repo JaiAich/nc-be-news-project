@@ -504,6 +504,74 @@ describe("8. POST /api/articles/:article_id/comments", () => {
   });
 });
 
+// < ----------------------- DELETE /api/comments/:comment_id ----------------------->
+describe("9. DELETE /api/comments/:comment_id", () => {
+  test("status: 204, deletes specified comment returning a 204 no content", () => {
+    const commentToDelete = {
+      article_id: 1,
+      author: "icellusedkars",
+      body: "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
+      comment_id: 3,
+      created_at: "2020-03-01T01:13:00.000Z",
+      votes: 100,
+    };
+    return request(app)
+      .get("/api/articles/1/comments") // <-- Get article comments list containing comment to delete
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(11);
+        expect(body.comments).toEqual(
+          expect.arrayContaining([commentToDelete])
+        );
+      })
+      .then(() => {
+        return request(app).delete("/api/comments/3").expect(204); // <-- Delete comment
+      })
+      .then(() => {
+        return request(app).get("/api/articles/1/comments").expect(200); // <-- Check comment has been deleted
+      })
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(10);
+        expect(body.comments).not.toEqual(
+          expect.arrayContaining([commentToDelete])
+        );
+      });
+  });
+
+  describe("Error handling tests", () => {
+    test("status: 400, responds with bad request message to invalid comment ids", () => {
+      return request(app)
+        .delete("/api/comments/invalid_comment_id")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad Request");
+        });
+    });
+
+    test("status: 404, responds with resource not found message to out of range comment ids", () => {
+      return request(app)
+        .delete("/api/comments/999")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Resource not found");
+        });
+    });
+
+    test("status: 404, responds with resource not found message for already deleted comments", () => {
+      return request(app)
+        .delete("/api/comments/3")
+        .expect(204)
+        .then(() => {
+          // attempt to delete same comment again
+          return request(app).delete("/api/comments/3").expect(404);
+        })
+        .then(({ body }) => {
+          expect(body.message).toBe("Resource not found");
+        });
+    });
+  });
+});
+
 // < -------------------------- GET invalid path -------------------------->
 describe("Misc error handling tests", () => {
   test("status: 404, responds with path not found for invalid path", () => {

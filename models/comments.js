@@ -37,3 +37,22 @@ exports.addComment = (articleId, comment) => {
     })
     .then(({ rows }) => rows[0]);
 };
+
+exports.removeComment = (commentId) => {
+  return checkExists("comments", "comment_id", commentId)
+    .then(() => {
+      return connection.query(
+        `DELETE FROM comments WHERE comment_id = $1 RETURNING *;`,
+        [commentId]
+      );
+    })
+    .then(({ rows }) => {
+      if (rows[0].comment_id === parseInt(commentId)) return;
+      else {
+        return Promise.reject({
+          status: 500,
+          message: `Failed to delete comment with id: ${commentId}`,
+        });
+      }
+    });
+};
