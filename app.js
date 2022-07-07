@@ -1,5 +1,7 @@
 const express = require("express");
 
+const { getEndpoints } = require("./controllers/info.js");
+
 const { getTopics, getHealth } = require("./controllers/topics.js");
 
 const {
@@ -25,6 +27,8 @@ const {
 const app = express();
 
 app.use(express.json());
+
+app.get("/api", getEndpoints);
 
 app.get("/api/health", getHealth);
 
