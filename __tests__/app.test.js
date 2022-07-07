@@ -84,13 +84,27 @@ describe("3. GET /api/articles", () => {
   });
 
   describe("Queries testing", () => {
-    test("status: 200, responds with articles array ordered by sort_by query with default desc order", () => {
+    test("status: 200, responds with articles array ordered by sort_by query with no order query parameter (defaults to desc)", () => {
       const sortingFunc = (a, b) => {
         if (a.votes > b.votes) return -1;
         return 1;
       };
       return request(app)
-        .get("/api/articles?sort_by=votes&order=desc")
+        .get("/api/articles?sort_by=votes")
+        .expect(200)
+        .then(({ body }) => {
+          const articlesCopy = [...body.articles];
+          expect(articlesCopy).toEqual(body.articles.sort(sortingFunc));
+        });
+    });
+
+    test("status: 200, responds with articles array ordered by ascending with no sort_by query parameter (defaults to date)", () => {
+      const sortingFunc = (a, b) => {
+        if (a.created_at < b.created_at) return -1;
+        return 1;
+      };
+      return request(app)
+        .get("/api/articles?order=asc")
         .expect(200)
         .then(({ body }) => {
           const articlesCopy = [...body.articles];
@@ -154,15 +168,15 @@ describe("3. GET /api/articles", () => {
           });
         });
     });
-  });
 
-  test("status: 200, responds with an empty array for valid topics with zero articles", () => {
-    return request(app)
-      .get("/api/articles?topic=paper")
-      .expect(200)
-      .then(({ body }) => {
-        expect(body.articles).toEqual([]);
-      });
+    test("status: 200, responds with an empty array for valid topics with zero articles", () => {
+      return request(app)
+        .get("/api/articles?topic=paper")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toEqual([]);
+        });
+    });
   });
 
   describe("Error handling tests", () => {
