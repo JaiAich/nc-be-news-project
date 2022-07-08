@@ -1,61 +1,23 @@
 const express = require("express");
 
-const { getEndpoints, getHealth } = require("./controllers/info.js");
-
-const { getTopics } = require("./controllers/topics.js");
-
-const {
-  getArticle,
-  getAllArticles,
-  patchArticle,
-} = require("./controllers/articles.js");
-
-const { getUsers } = require("./controllers/users.js");
-
-const {
-  getCommentsByArticleId,
-  postComment,
-  deleteComment,
-} = require("./controllers/comments.js");
-
 const {
   handlePSQLErrors,
   unhandledErrors,
   handleCustomErrors,
 } = require("./errors/index.js");
 
+const apiRouter = require("./routes/api-router.js");
+
 const app = express();
 
 app.use(express.json());
-
-app.get("/api", getEndpoints);
-
-app.get("/api/health", getHealth);
-
-app.get("/api/topics", getTopics);
-
-app.get("/api/articles/:article_id", getArticle);
-
-app.patch("/api/articles/:article_id", patchArticle);
-
-app.get("/api/users", getUsers);
-
-app.get("/api/articles", getAllArticles);
-
-app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
-
-app.post("/api/articles/:article_id/comments", postComment);
-
-app.delete("/api/comments/:comment_id", deleteComment);
-
+app.use("/api", apiRouter);
 app.use("*", (req, res) => {
   res.status(404).send({ message: "Path not found!" });
 });
 
 app.use(handlePSQLErrors);
-
 app.use(handleCustomErrors);
-
 app.use(unhandledErrors);
 
 module.exports = app;
