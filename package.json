@@ -9,7 +9,8 @@
     "test": "jest",
     "prepare": "husky install",
     "dev": "nodemon listen.js",
-    "test-app": "jest app.test.js"
+    "test-app": "jest app.test.js",
+    "start": "node listen.js"
   },
   "repository": {
     "type": "git",
