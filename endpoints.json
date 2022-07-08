@@ -18,7 +18,7 @@
     "description": "serves an array of all users",
     "queries": [],
     "exampleResponse": {
-      "topics": [
+      "users": [
         {
           "avatar_url": "really_awesome_pic.png",
           "name": "Sam Adams",
@@ -33,11 +33,13 @@
     "exampleResponse": {
       "articles": [
         {
+          "article_id": 1,
           "title": "Are example responses ever read by tutors",
           "topic": "Meta",
           "author": "J.S",
           "body": "Text from the article..",
-          "created_at": "Date when article was created in ISO 8601 format"
+          "created_at": "Date when article was created in ISO 8601 format",
+          "comment_count": 11
         }
       ]
     }
