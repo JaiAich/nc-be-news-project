@@ -3,6 +3,7 @@ const app = require("../app.js");
 const connection = require("../db/connection.js");
 const seed = require("../db/seeds/seed.js");
 const testData = require("../db/data/test-data/index.js");
+const endpointsJSON = require("../endpoints.json");
 
 beforeEach(() => {
   return seed(testData);
@@ -12,8 +13,20 @@ afterAll(() => {
   if (connection.end) connection.end();
 });
 
+// < -------------------------- GET /api -------------------------->
+describe("1. GET /api", () => {
+  test("status: 200, responds with all available endpoints on the API", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual(endpointsJSON);
+      });
+  });
+});
+
 // < -------------------------- GET /api/health -------------------------->
-describe("1. GET /api/health", () => {
+describe("2. GET /api/health", () => {
   test("status: 200, responds with server up and running message", () => {
     return request(app)
       .get("/api/health")
@@ -25,7 +38,7 @@ describe("1. GET /api/health", () => {
 });
 
 // < -------------------------- GET /api/topics -------------------------->
-describe("2. GET /api/topics", () => {
+describe("3. GET /api/topics", () => {
   test("status: 200, responds with an array of topics of correct length & format", () => {
     return request(app)
       .get("/api/topics")
@@ -45,7 +58,7 @@ describe("2. GET /api/topics", () => {
 });
 
 // < -------------------------- GET /api/articles -------------------------->
-describe("3. GET /api/articles", () => {
+describe("4. GET /api/articles", () => {
   test("status: 200, responds with an array of articles of correct length & format", () => {
     return request(app)
       .get("/api/articles")
@@ -210,7 +223,7 @@ describe("3. GET /api/articles", () => {
 });
 
 // < -------------------------- GET /api/articles/:article_id -------------------------->
-describe("4. GET /api/articles/:article_id", () => {
+describe("5. GET /api/articles/:article_id", () => {
   test("status: 200, responds with the correct article matching the id parameter including a comment count", () => {
     return request(app)
       .get("/api/articles/1")
@@ -267,7 +280,7 @@ describe("4. GET /api/articles/:article_id", () => {
 });
 
 // < ------------------------ GET /api/articles/:article_id/comments ------------------------>
-describe("5. GET /api/articles/:article_id/comments", () => {
+describe("6. GET /api/articles/:article_id/comments", () => {
   test("status: 200, responds with the an array of comments for the matching article_id", () => {
     return request(app)
       .get("/api/articles/3/comments")
@@ -320,7 +333,7 @@ describe("5. GET /api/articles/:article_id/comments", () => {
 });
 
 // < -------------------------- PATCH /api/articles/:article_id -------------------------->
-describe("6. PATCH /api/articles/:article_id", () => {
+describe("7. PATCH /api/articles/:article_id", () => {
   test("status: 200, responds with the updated article object", () => {
     const newInfo = { inc_votes: 5 };
     return request(app)
@@ -388,7 +401,7 @@ describe("6. PATCH /api/articles/:article_id", () => {
 });
 
 // < -------------------------- GET /api/users -------------------------->
-describe("7. GET /api/users", () => {
+describe("8. GET /api/users", () => {
   test("status: 200, responds with an array of users of correct length & format", () => {
     return request(app)
       .get("/api/users")
@@ -409,7 +422,7 @@ describe("7. GET /api/users", () => {
 });
 
 // < ----------------------- POST /api/articles/:article_id/comments ----------------------->
-describe("8. POST /api/articles/:article_id/comments", () => {
+describe("9. POST /api/articles/:article_id/comments", () => {
   test("status: 201, adds comment to correct db if user exists & responds with the added comment", () => {
     const newComment = {
       username: "butter_bridge",
@@ -505,7 +518,7 @@ describe("8. POST /api/articles/:article_id/comments", () => {
 });
 
 // < ----------------------- DELETE /api/comments/:comment_id ----------------------->
-describe("9. DELETE /api/comments/:comment_id", () => {
+describe("10. DELETE /api/comments/:comment_id", () => {
   test("status: 204, deletes specified comment returning a 204 no content", () => {
     const commentToDelete = {
       article_id: 1,

@@ -2,26 +2,123 @@
   "GET /api": {
     "description": "serves up a json representation of all the available endpoints of the api"
   },
+  "GET /api/health": {
+    "description": "serves a message of confirmation that the server is up and running"
+  },
   "GET /api/topics": {
     "description": "serves an array of all topics",
     "queries": [],
     "exampleResponse": {
-      "topics": [{ "slug": "football", "description": "Footie!" }]
+      "topics": [
+        { "slug": "Airplane food", "description": "What's the deal with it" }
+      ]
     }
   },
-  "GET /api/articles": {
-    "description": "serves an array of all topics",
-    "queries": ["author", "topic", "sort_by", "order"],
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
     "exampleResponse": {
-      "articles": [
+      "users": [
         {
-          "title": "Seafood substitutions are increasing",
-          "topic": "cooking",
-          "author": "weegembump",
-          "body": "Text from the article..",
-          "created_at": 1527695953341
+          "avatar_url": "really_awesome_pic.png",
+          "name": "Sam Adams",
+          "username": "I_need_a_pint"
         }
       ]
     }
+  },
+  "GET /api/articles": {
+    "description": "serves an array of all articles",
+    "queries": ["topic", "sort_by", "order"],
+    "exampleResponse": {
+      "articles": [
+        {
+          "article_id": 1,
+          "title": "Are example responses ever read by tutors",
+          "topic": "Meta",
+          "author": "J.S",
+          "body": "Text from the article..",
+          "created_at": "Date when article was created in ISO 8601 format",
+          "comment_count": 11
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves a single article that corresponds to inputted article_id",
+    "queries": [],
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "I can't think of anything good",
+        "topic": "Writer's block",
+        "author": "J Holmes",
+        "body": "Text from the article..",
+        "created_at": "Date when article was created in ISO 8601 format",
+        "votes": 100,
+        "comment_count": 11
+      }
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "increases the votes on a single article that corresponds to inputted article_id",
+    "queries": [],
+    "exampleRequestBody": { "inc_votes": 5 },
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Still making up fake titles",
+        "topic": "Procrastination",
+        "author": "J Holmes",
+        "body": "Text from the article..",
+        "created_at": "Date when article was created in ISO 8601 format",
+        "votes": 105
+      }
+    }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves an array of comments attributed to the inputted article_id",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "article_id": 3,
+          "comment_id": 12,
+          "author": "article_enthusiast_420",
+          "body": "Text from the comment..",
+          "created_at": "Date when comment was created in ISO 8601 format",
+          "votes": 100
+        },
+        {
+          "article_id": 3,
+          "comment_id": 13,
+          "author": "all_my_comments_are_rubbish",
+          "body": "Text from the comment..",
+          "created_at": "Date when comment was created in ISO 8601 format",
+          "votes": 0
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts a new comment to the specified article",
+    "queries": [],
+    "exampleRequestBody": { "username": "lost_user", "body":"Alexa turn off internet." },
+    "exampleResponse": {
+      "article":         {
+        "article_id": 3,
+        "comment_id": 17,
+        "author": "lost_user",
+        "body": "Alexa turn off internet.",
+        "created_at": "Date when comment was created in ISO 8601 format",
+        "votes": 0
+      }
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes the comment relating to the inputted comment id",
+    "queries": [],
+    "exampleResponse": "204 response code"
   }
+
 }
