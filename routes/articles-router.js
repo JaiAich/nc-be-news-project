@@ -11,9 +11,10 @@ const {
 } = require("../controllers/comments.js");
 
 articlesRouter.get("/", getAllArticles);
-articlesRouter.get("/:article_id", getArticle);
-articlesRouter.patch("/:article_id", patchArticle);
-articlesRouter.get("/:article_id/comments", getCommentsByArticleId);
-articlesRouter.post("/:article_id/comments", postComment);
+articlesRouter.route("/:article_id").get(getArticle).patch(patchArticle);
+articlesRouter
+  .route("/:article_id/comments")
+  .get(getCommentsByArticleId)
+  .post(postComment);
 
 module.exports = articlesRouter;
